@@ -1,4 +1,5 @@
 #include "cmsis_compiler.h"
+#include "my_malloc_internal.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdalign.h>
@@ -10,16 +11,7 @@ extern char _sstack;
 
 static void *current_break = NULL;
 
-typedef union block_header{
-    struct{
-        size_t size_total;
-        int is_free;
-        union block_header *next;
-        union block_header *prev;
-    };
-
-    max_align_t _align_;
-}block_header_t;
+const size_t meta_data_size = sizeof(block_header_t);
 
 static block_header_t *head = NULL;
 static block_header_t *tail = NULL;
