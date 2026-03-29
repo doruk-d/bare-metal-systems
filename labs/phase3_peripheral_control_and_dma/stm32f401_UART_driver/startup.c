@@ -9,12 +9,20 @@ extern uint32_t _sbss;
 extern uint32_t _ebss;
 
 void ResetHandler(void);
+void HardFaultHandler(void);
+void DefaultHandler(void); 
+void USART2_IRQHandler(void);
+
+typedef void (*isr_t)(void);
 
 __attribute__((section(".isr_vector")))
 
-const uint32_t vector_table[]={
-    (uint32_t)&_estack,
-    (uint32_t)ResetHandler
+const isr_t vector_table[]={
+    (isr_t)&_estack,
+    ResetHandler,
+    [2 ... 90] = DefaultHandler, 
+    [3] = HardFaultHandler,
+    [54] = USART2_IRQHandler
 };
 
 void ResetHandler(void){
@@ -35,5 +43,12 @@ void ResetHandler(void){
     extern int main(void);
     main();
 
+}
 
+void HardFaultHandler(void){
+    while (1);    
+}
+
+void DefaultHandler(void){
+    while (1);
 }
