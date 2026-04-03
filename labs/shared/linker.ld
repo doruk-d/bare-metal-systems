@@ -44,23 +44,24 @@ SECTIONS
         *(COMMON)
         . = ALIGN(8);
         _ebss = . ;
+        . = ALIGN(1 << LOG2CEIL(. - _sdata));
+        _ebss_mpu = . ;
 
     } > RAM
 
-    _sheap = _ebss;
+    _sheap = _ebss_mpu;
 
     _stack_start = ORIGIN(RAM) + LENGTH(RAM) - _stack_size;
 
     .stack _stack_start (NOLOAD) : 
     {
-        . = ALIGN(8);
+        . = ALIGN(_stack_size);
         _sstack = . ;
         . = . + _stack_size;
-        . = ALIGN(8);
         _estack = . ;
 
     } > RAM
 
 }
 
-ASSERT(_ebss <= _sstack, "ERROR: BSS has collided with stack")
+ASSERT(_ebss_mpu <= _sstack, "ERROR: MPU BSS Region has collided with stack")
