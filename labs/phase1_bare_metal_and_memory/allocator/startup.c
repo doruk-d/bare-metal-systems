@@ -13,6 +13,7 @@ extern uint32_t _sstack;
 void ResetHandler(void);
 void HardFaultHandler(void);
 void DefaultHandler(void);
+void USART2_IRQHandler(void);
 
 typedef void (*isr_t)(void);
 
@@ -22,7 +23,8 @@ const isr_t vector_table[]={
     (isr_t)&_estack,
     ResetHandler,
     [2 ... 90] = DefaultHandler,
-    [3] = HardFaultHandler
+    [3] = HardFaultHandler,
+    [54] = USART2_IRQHandler
 };
 
 void ResetHandler(){

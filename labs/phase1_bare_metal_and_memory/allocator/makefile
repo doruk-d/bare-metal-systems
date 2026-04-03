@@ -7,7 +7,7 @@ INCLUDES:= -I../../phase3_peripheral_control_and_dma/stm32f401_UART_driver/ \
 
 MCU_FLAGS:= -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -mthumb 
 CFLAGS:= $(MCU_FLAGS) -Wall -O0 -g $(INCLUDES) 
-LDFLAGS:= $(MCU_FLAGS) -T linker.ld -nostartfiles --specs=nano.specs --specs=nosys.specs
+LDFLAGS:= $(MCU_FLAGS) -T ../../shared/linker.ld -nostartfiles --specs=nano.specs --specs=nosys.specs
 DEPFLAGS:= -MMD -MP
 
 # files
