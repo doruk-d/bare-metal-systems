@@ -11,6 +11,7 @@
 #define MPU_RNR (*(volatile uint32_t *)(MPU_BASE + 0x08))
 #define MPU_RBAR (*(volatile uint32_t *)(MPU_BASE + 0x0C))
 #define MPU_RASR (*(volatile uint32_t *)(MPU_BASE + 0x10))
+#define SHCSR (*(volatile uint32_t *)0xE000ED24)
 
 #define FLASH_SIZE (512 * 1024U)
 #define STACK_G_SIZE 128 // an average number to catch possible overflows
@@ -143,6 +144,9 @@ mpu_err_t mpu_init(void){
     __asm__ volatile("isb" ::: "memory");
 
     __asm__ volatile("cpsie i" ::: "memory");
+
+    // enable memory management fault
+    SHCSR |= (1 << 16);
 
     return MPU_CONFIG_SUCCESS;
 }
