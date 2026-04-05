@@ -8,3 +8,9 @@ embedded_warmup_exercises.md
 package-lock.json
 TODO_PORTFOLIO.md
 **/TODO_README.md
+*.png
+p1_checklist.md
+read_for_uart.md
+resources.txt
+stm32/
+lab_notes.md
