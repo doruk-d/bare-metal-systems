@@ -39,6 +39,11 @@ mpu_err_t mpu_init(void){
     // disable mpu and its features for now
     MPU_CTRL = 0;
 
+    // wait for store to be committed
+    __asm__ volatile("dsb" ::: "memory");
+
+    // flush the pipeline to ensure subsequent instructions are fetched
+    __asm__ volatile("isb" ::: "memory");
 
     // 0: flash
     MPU_RNR = 0;
