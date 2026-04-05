@@ -1,4 +1,5 @@
 #include "system_clock.h"
+#include "fault_handlers.h"
 #include <stdint.h>
 
 extern uint32_t _estack;
@@ -6,11 +7,9 @@ extern uint32_t _sidata;
 extern uint32_t _sdata;
 extern uint32_t _edata;
 extern uint32_t _sbss;
-extern uint32_t _ebss;
+extern uint32_t _ebss_mpu;
 
 void ResetHandler(void);
-void HardFaultHandler(void);
-void DefaultHandler(void); 
 void USART2_IRQHandler(void);
 
 typedef void (*isr_t)(void);
@@ -22,6 +21,7 @@ const isr_t vector_table[]={
     ResetHandler,
     [2 ... 90] = DefaultHandler, 
     [3] = HardFaultHandler,
+    [4] = MemManageHandler,
     [54] = USART2_IRQHandler
 };
 
@@ -30,7 +30,7 @@ void ResetHandler(void){
     uint32_t *dest_sdata = &_sdata;
     uint32_t *dest_edata = &_edata;
     uint32_t *s_bss = &_sbss;
-    uint32_t *e_bss = &_ebss;
+    uint32_t *e_bss = &_ebss_mpu;
 
     while (dest_sdata < dest_edata)
         *dest_sdata++ = *src_fdata++;
@@ -43,12 +43,4 @@ void ResetHandler(void){
     extern int main(void);
     main();
 
-}
-
-void HardFaultHandler(void){
-    while (1);    
-}
-
-void DefaultHandler(void){
-    while (1);
 }
