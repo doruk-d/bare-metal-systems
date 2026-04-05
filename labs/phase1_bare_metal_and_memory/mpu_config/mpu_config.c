@@ -29,7 +29,7 @@ static inline uint32_t mpu_size_val(uint32_t size){
 
 mpu_err_t mpu_init(void){
     // to avoid unexpected behavior disable the interrupts
-    __asm volatile("cpsid i" ::: "memory");
+    __asm__ volatile("cpsid i" ::: "memory");
 
     // check if mpu is present
     if (((MPU_TYPER >> 8) & 0xFF) == 0x00)
@@ -138,11 +138,11 @@ mpu_err_t mpu_init(void){
     MPU_CTRL |= (1 << 2) | (1 << 0);
 
     // ensure all data synchronization is complete
-    __asm volatile("dsb" ::: "memory");
+    __asm__ volatile("dsb" ::: "memory");
     // flush cpu pipeline and discard already fetched then re-fetch from memory
-    __asm volatile("isb" ::: "memory");
+    __asm__ volatile("isb" ::: "memory");
 
-    __asm volatile("cpsie i" ::: "memory");
+    __asm__ volatile("cpsie i" ::: "memory");
 
     return MPU_CONFIG_SUCCESS;
 }

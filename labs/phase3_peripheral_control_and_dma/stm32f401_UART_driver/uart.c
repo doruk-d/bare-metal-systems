@@ -90,7 +90,7 @@ uart_err_t uart_init(uint32_t baud){
     NVIC_ISERx |= (1 << NVIC_BIT);
 
     // enable interrupts globally
-    __asm("cpsie i");
+    __asm__ volatile("cpsie i" ::: "memory");
 
     return UART_OK;
 }
