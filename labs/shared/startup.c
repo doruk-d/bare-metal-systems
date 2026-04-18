@@ -2,15 +2,11 @@
 #include "fault_handlers.h"
 #include <stdint.h>
 
-extern uint32_t _estack;
-extern uint32_t _sidata;
-extern uint32_t _sdata;
-extern uint32_t _edata;
-extern uint32_t _sbss;
-extern uint32_t _ebss_mpu;
+extern uint32_t _estack, _sidata, _sdata, _edata, _sbss, _ebss_mpu;
 
 void ResetHandler(void);
-void USART2_IRQHandler(void);
+void DefaultHandler(void);
+void USART2_IRQHandler(void) __attribute__((weak, alias("DefaultHandler"))); 
 
 typedef void (*isr_t)(void);
 
@@ -19,11 +15,15 @@ __attribute__((section(".isr_vector")))
 const isr_t vector_table[]={
     (isr_t)&_estack,
     ResetHandler,
-    [2 ... 90] = DefaultHandler, 
+    [2 ... 97] = DefaultHandler, 
     [3] = HardFaultHandler,
     [4] = MemManageHandler,
     [54] = USART2_IRQHandler
 };
+
+void DefaultHandler(void){
+    __asm__ volatile("bkpt #0");
+}
 
 void ResetHandler(void){
     uint32_t *src_fdata = &_sidata;
