@@ -89,6 +89,7 @@ linker script sourced from
 
 - Uncovered a `size_t` overflow that wrapped the size calculation, undersizing the pointer array and causing out-of-bounds writes during allocation tracking, triggering HardFault.
 - Resolved by using a statically sized array with compile-time macros.
+- Resolved critical section management issue caused by `cpsid/e i` use. Nested functions with critical sections were re-enabling interrupts mid-critical section on return. Implemented save/restore pattern with PRIMASK, solved the issue by saving and restoring the previous PRIMASK value across function boundaries.
 
 ### Memory Layout Verification
 
