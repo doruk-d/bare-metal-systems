@@ -40,7 +40,7 @@ static void *_sbrk_(size_t size){
     return (void *)prev_break;
 }
 
-// asks for additional memory from mcpu when needed
+// asks for additional memory from mcu when needed
 static block_header_t *request_space(size_t total_size){
     block_header_t *block = (block_header_t *)_sbrk_(total_size);
 
@@ -63,7 +63,21 @@ static block_header_t *find_free_block(size_t total_size){
 }
 
 void *my_malloc(size_t size){
+    uint32_t primask;
+    
+    __asm__ volatile(
+        "mrs %0, primask    \n\t"
+        :"=r"(primask)
+        ::
+    );
+    
+    __asm__ volatile(
+        "cpsid i    \n\t"
+        ::
+        :"memory"
+    );
 
+        
     if (current_break == NULL)
         current_break = (void *)&_sheap;
     
@@ -149,11 +163,31 @@ void *my_malloc(size_t size){
     goto exit_malloc;
 
 exit_malloc:
+    __asm__ volatile(
+        "msr primask, %0    \n\t"
+        :
+        :"r"(primask)
+        :"memory"
+    );
+
     return result_p;
 
 }
 
 void my_free(void *ptr){
+    uint32_t primask;
+
+    __asm__ volatile(
+        "mrs %0, primask    \n\t"
+        :"=r"(primask)
+        ::
+    );
+
+    __asm__ volatile(
+        "cpsid i    \n\t"
+        ::
+        :"memory"
+    );
 
     if (!ptr)
         goto exit_free;
@@ -196,31 +230,81 @@ void my_free(void *ptr){
         head = current_ptr;
 
 exit_free:
+    __asm__ volatile(
+        "msr primask, %0    \n\t"
+        :
+        :"r"(primask)
+        :"memory"
+    );
     return;
 }
 
 void *my_calloc(size_t nmemb, size_t size){
+    uint32_t primask;
+
+    __asm__ volatile(
+        "mrs %0, primask    \n\t"
+        :"=r"(primask)
+        ::
+    );
+
+    __asm__ volatile(
+        "cpsid i    \n\t"
+        ::
+        :"memory"
+    );
+
+    void *return_p = NULL;
+
     if (size != 0 && nmemb > SIZE_MAX / size)
-        return NULL;
+        goto exit_calloc;
 
     unsigned char *mem = my_malloc(nmemb * size);
     if (!mem)
-        return NULL;
+        goto exit_calloc;
 
     for (size_t i = 0; i < nmemb * size; i++)
         *(mem + i)= 0;
 
     
-    return (void *)mem;
+    return_p = (void *)mem;
+
+exit_calloc:
+    __asm__ volatile(
+        "msr primask, %0    \n\t"
+        :
+        :"r"(primask)
+        :"memory"
+    );  
+
+    return return_p;
 }
 
 void *my_realloc(void *ptr, size_t size){
-    if (ptr == NULL)
-        return my_malloc(size);
+    uint32_t primask;
 
+    __asm__ volatile(
+        "mrs %0, primask    \n\t"
+        :"=r"(primask)
+        ::    
+    );
+
+    __asm__ volatile(
+        "cpsid i    \n\t"
+        ::
+        :"memory"
+    );
+
+    void *return_p = NULL;
+    
+    if (ptr == NULL){
+        return_p = my_malloc(size);
+        goto exit_realloc;
+    }
+    
     if (size == 0){
         my_free(ptr);
-        return NULL;
+        goto exit_realloc;
     }
 
     block_header_t *current = (block_header_t *)ptr - 1;
@@ -232,7 +316,7 @@ void *my_realloc(void *ptr, size_t size){
 
     void *mem = my_malloc(size);
     if (!mem)
-        return NULL;
+        goto exit_realloc;
 
     unsigned char *src = (unsigned char *)ptr;
     unsigned char *dest = (unsigned char *)mem;
@@ -241,11 +325,34 @@ void *my_realloc(void *ptr, size_t size){
 
     my_free(ptr);
 
-    return mem;
+    return_p = mem;
+
+exit_realloc:
+    __asm__ volatile(
+        "msr primask, %0    \n\t"
+        :
+        :"r"(primask)
+        :"memory"
+    );
+
+    return return_p;
 }
 
 void wipe_heap(void){
+   uint32_t primask;
 
+    __asm__ volatile(
+        "mrs %0, primask    \n\t"
+        :"=r"(primask)
+        ::    
+    );
+
+    __asm__ volatile(
+        "cpsid i    \n\t"
+        ::
+        :"memory"
+    );
+        
     if (current_break != NULL){
         char *heap_start = (char *)&_sheap;
 
@@ -258,4 +365,10 @@ void wipe_heap(void){
     
     current_break = (void *)&_sheap;
 
+ __asm__ volatile(
+        "msr primask, %0    \n\t"
+        :
+        :"r"(primask)
+        :"memory"
+    );
 }
