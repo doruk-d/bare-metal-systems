@@ -39,6 +39,8 @@ linker script sourced from
 - **Strategy**: The allocator implements first-fit allocation with block coalescing through a doubly linked list to reduce fragmentation. 
     - **Trade-off**: Doubly linked list implementation chosen over singly linked list, for the easier coalescing it enables, at the cost of slightly larger metadata allocation.
 
+- The allocator packaged as a static library `libmyalloc.a` to enforce modularity and practice proper separation of concerns between components.
+
 ### Memory Alignment
 
 - As the memory alignment has been a major allocator concern, the allocator enforces architecture-safe alignment rules to prevent misaligned access, data corruption, and undefined behavior via:
