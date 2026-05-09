@@ -19,6 +19,9 @@ const isr_t vector_table[]={
     [2 ... 97] = DefaultHandler, 
     [3] = HardFaultHandler,
     [4] = MemManageHandler,
+    [11] = SVC_Handler,
+    [14] = PendSV_Handler,
+    [15] = SysTick_Handler,
     [54] = USART2_IRQHandler
 };
 
