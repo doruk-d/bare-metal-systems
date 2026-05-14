@@ -1,11 +1,19 @@
 #include "asm_offsets.h"
+#include "dwt.h"
 .extern current_task
 .extern next_task
+.extern sw_start_cyccnt
+.extern sw_end_cyccnt
 
 .globl PendSV_Handler
 .type PendSV_Handler, %function
 
 PendSV_Handler:
+    ldr r2, =DWT_CYCCNT     
+    ldr r2, [r2]                @ read the current value of cyccnt
+    ldr r3, =sw_start_cyccnt
+    str r2, [r3]
+
     mrs r0, psp                 @ get the current sp
     stmdb r0!, {r4-r11}         @ push the software frame
     ldr r1, =current_task       @ read current task's address
@@ -23,6 +31,11 @@ PendSV_Handler:
     ldr r0, [r0]
     ldr r1, =current_task
     str r0, [r1]
+
+    ldr r3, =DWT_CYCCNT     
+    ldr r3, [r3]                @ read the current value of cyccnt
+    ldr r2, =sw_end_cyccnt
+    str r3, [r2]
 
     bx lr                       @ return
 

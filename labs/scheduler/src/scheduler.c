@@ -1,6 +1,7 @@
 #include "scheduler.h"
 #include "systick.h"
 #include "asm_offsets.h"
+#include "dwt.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdalign.h>
@@ -29,6 +30,7 @@ static void task_remove(void);
 task_t *current_task = head;
 task_t *next_task = NULL;
 
+volatile uint32_t excp_start_cyccnt, sw_start_cyccnt, sw_end_cyccnt;
 
 task_init_t task_create(void *arg, void (*task_func)(void *)){
     if (task_func == NULL)
@@ -121,6 +123,8 @@ void scheduler_init(void){
 
 void scheduler_run(void){
     next_task = current_task->next;
+    
+    excp_start_cyccnt = DWT_CYCCNT;
 
     SCB_ICSR |= (1 << 28);
 
