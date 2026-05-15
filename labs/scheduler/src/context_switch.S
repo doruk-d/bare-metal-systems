@@ -1,5 +1,8 @@
+.syntax unified
+.thumb
+
 #include "asm_offsets.h"
-#include "dwt.h"
+#define DWT_CYCCNT 0xE0001004
 .extern current_task
 .extern next_task
 .extern sw_start_cyccnt
