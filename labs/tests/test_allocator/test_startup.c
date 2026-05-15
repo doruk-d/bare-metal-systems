@@ -1,4 +1,5 @@
 #include "stm32f401xe.h"
+#include "mpu_config.h"
 #include "system_clock.h"
 #include <stdint.h>
 

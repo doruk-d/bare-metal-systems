@@ -19,7 +19,7 @@ BUILD_DIR:= build
 UART_DIR:=  ../../drivers/uart/build/
 UART_LIB:=  ../../drivers/uart/build/libuart.a
 
-vpath %.c src ../../boot/stm32f4x/ ../../drivers/uart/src/ ../../tests/test_allocator/
+vpath %.c src ../../boot/stm32f4x/ ../../tests/test_allocator/
 
 
 TARGET:= $(BUILD_DIR)/libmyalloc.a
