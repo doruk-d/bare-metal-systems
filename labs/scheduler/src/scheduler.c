@@ -27,7 +27,7 @@ static void scheduler_register(task_t *task);
 static void task_remove(void);
 
 
-task_t *current_task = head;
+task_t *current_task = NULL;
 task_t *next_task = NULL;
 
 volatile uint32_t excp_start_cyccnt, sw_start_cyccnt, sw_end_cyccnt;
@@ -87,25 +87,6 @@ static void scheduler_register(task_t *task){
     tail->next = head;
 }
 
-static void launch_first_task(void){
-    __asm__ volatile("svc %0" :: "i"(SYS_LNCH));    
-}
-
-
-__attribute__((naked)) void task_launch(void){
-    __asm__ volatile(
-        "ldr r0, =head          \n"
-        "ldr r0, [r0]           \n"
-        "ldr r0, [r0, %[offset]]\n"
-        "ldmia r0!, {r4-r11}    \n"
-        "msr psp, r0            \n"
-        "ldr lr, =0xfffffffd    \n" //  make sure the system returns to thread mode using psp 
-        "bx lr                  \n"
-        :
-        : [offset] "I" (OFFSET_SP)
-    );
-}
-
 void scheduler_init(void){
     // set pendsv priority to the least
     SCB_SHPR3 |= (0xFF << 16);
@@ -116,18 +97,16 @@ void scheduler_init(void){
             __asm__ volatile("wfi");
     }
 
-    systick_init();
+    current_task = NULL;
+    next_task = head;    
 
-    launch_first_task();
+    SCB_ICSR |= (1 << 28);
 }
 
 void scheduler_run(void){
     next_task = current_task->next;
     
-    excp_start_cyccnt = DWT_CYCCNT;
-
     SCB_ICSR |= (1 << 28);
-
 }
 
 static void task_remove(void){
