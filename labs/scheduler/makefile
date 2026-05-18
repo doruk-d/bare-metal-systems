@@ -2,7 +2,7 @@ CC:= arm-none-eabi-gcc
 
 INCLUDES:= -Iinclude/ \
            -I../drivers/uart/include/ \
-		   -I../boot/stm32f4x/ \
+		   -I../boot/stm32f4x/ 
 
 MCUFLAGS:= -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb
 CFLAGS:= $(MCUFLAGS) -Wall -O0 -g $(INCLUDES)
@@ -16,7 +16,7 @@ vpath %.c src/ ../boot/stm32f4x/ ../tests/test_scheduler/
 vpath %.S src/
 
 TARGET:= $(BUILD_DIR)/scheduler.elf
-SRCS:= test_scheduler.c startup.c mpu_config.c system_clock.c dwt.c  scheduler.c  svc.c  systick.c fault_handlers.c
+SRCS:= test_scheduler.c startup.c mpu_config.c system_clock.c dwt.c  scheduler.c  svc.c  systick.c fault_handlers.c measure_gpio.c
 ASM_SRCS:= context_switch.S
 OBJS:= $(SRCS:%.c=$(BUILD_DIR)/%.o)
 ASM_OBJS:= $(ASM_SRCS:%.S=$(BUILD_DIR)/%.o)

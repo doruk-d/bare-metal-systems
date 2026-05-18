@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "dwt.h"
+#include "measure_gpio.h"
 #include "uart.h"
 #include "scheduler.h"
 
@@ -19,6 +20,8 @@ extern volatile uint32_t excp_start_cyccnt, sw_start_cyccnt, sw_end_cyccnt;
 
 int main(void){
     uart_init(9600);
+    
+    gpio_init();
 
     uint32_t x = 9;
 
@@ -33,7 +36,9 @@ int main(void){
     if (task_create(NULL,&task9) == FAIL) uart_puts("FAIL_9\n"); 
     if (task_create(NULL,&task10) == FAIL) uart_puts("FAIL_10\n"); 
 
-    dwt_init();
+    if (dwt_init() == UNSUPPORTED_CYCLE_COUNTER) 
+        while(1);
+
     scheduler_init();
 
 }

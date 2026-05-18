@@ -2,6 +2,7 @@
 #include "systick.h"
 #include "asm_offsets.h"
 #include "dwt.h"
+#include "measure_gpio.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdalign.h>
@@ -30,7 +31,7 @@ static void task_remove(void);
 task_t *current_task = NULL;
 task_t *next_task = NULL;
 
-volatile uint32_t excp_start_cyccnt, sw_start_cyccnt, sw_end_cyccnt;
+volatile uint32_t sw_start_cyccnt, sw_end_cyccnt;
 
 task_init_t task_create(void *arg, void (*task_func)(void *)){
     if (task_func == NULL)
@@ -100,12 +101,16 @@ void scheduler_init(void){
     current_task = NULL;
     next_task = head;    
 
+    GPIOA_BSRR = (1 << PIN);
+
     SCB_ICSR |= (1 << 28);
 }
 
 void scheduler_run(void){
     next_task = current_task->next;
     
+    GPIOA_BSRR = (1 << PIN);
+
     SCB_ICSR |= (1 << 28);
 }
 

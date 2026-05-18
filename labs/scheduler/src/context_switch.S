@@ -2,13 +2,18 @@
 .thumb
 
 #include "asm_offsets.h"
-#define DWT_CYCCNT 0xE0001004
+#define DWT_CYCCNT_ADDR 0xE0001004
+#define GPIOA_BSRR_ADDR 0x40020018
 
 .globl PendSV_Handler
 .type PendSV_Handler, %function
 
 PendSV_Handler:
-    ldr r2, =DWT_CYCCNT     
+    ldr r0, =GPIOA_BSRR_ADDR
+    ldr r1, =0x02000000
+    str r1, [r0]
+
+    ldr r2, =DWT_CYCCNT_ADDR     
     ldr r2, [r2]                @ read the current value of cyccnt
     ldr r3, =sw_start_cyccnt
     str r2, [r3]
@@ -44,7 +49,7 @@ PendSV_Handler:
     ldr r1, =current_task
     str r0, [r1]
 
-    ldr r3, =DWT_CYCCNT     
+    ldr r3, =DWT_CYCCNT_ADDR     
     ldr r3, [r3]                @ read the current value of cyccnt
     ldr r2, =sw_end_cyccnt
     str r3, [r2]
