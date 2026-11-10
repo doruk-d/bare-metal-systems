@@ -1,7 +1,9 @@
-add_library(bsp_stm32f4x STATIC
-            system_clock.c
-            mpu_config.c
-            fault_handlers.c)
+add_library(bsp STATIC
+        fault_handlers.c
+        mpu_config.c
+        system_clock.c
+)
 
-target_include_directories(bsp_stm32f4x PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(bsp_stm32f4x PRIVATE stm32_regs)
+target_link_libraries(bsp PUBLIC regs)
+
+target_include_directories(bsp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
